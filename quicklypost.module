@@ -1,0 +1,89 @@
+<?php
+
+
+// $Id$	  
+/**
+ * @file
+* Implements the block for quickly post content.
+*/
+
+/**
+ * Implementation of hook_menu().
+	 */
+function quicklypost_menu() {
+    $items['postform/change'] = array(
+        'page callback' => 'postform_change',
+        'type' => MENU_CALLBACK,
+        'access callback' => TRUE,
+    );
+	    return $items;
+}
+
+/**
+* Implementation of hook_block_info().
+*/
+function quicklypost_block_info() {
+  $blocks = array();
+  $blocks['quicklypost']['info'] =  t('Quickly Post Form');
+  $blocks['quicklypost']['cache'] = DRUPAL_NO_CACHE;   // maybe CACHE_PER_USER ?
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function quicklypost_block_view($delta) {
+//	drupal_add_js(drupal_get_path('module', 'quicklypost') .'/quicklypost.js');
+   drupal_add_css(drupal_get_path('module', 'quicklypost') . '/quicklypost.css');
+	$value= drupal_get_form( 'postselect_form');
+	$block['content']=$value;
+	return $block;
+	
+}
+
+
+function postselect_form($form, &$form_state){
+	$posttype = array ();
+	$posttype['Select']= '--Select type--';
+	foreach (node_type_get_types() as $type => $type_obj) {
+		if(user_access('create '.$type.' content'))
+            $posttype [$type] = $type_obj->name;
+  }
+	$form['posttype'] = array (
+				'#type' => 'select',
+				'#title' => t('Add New Content:'),
+				'#required' => false,
+				'#default_value' =>  'Select',
+				'#options' => $posttype,
+				'#ajax'=>array(
+					'callback'=>'postform_change',
+					'wrapper'=>'postform',
+					'method' => 'replace',
+				),
+	);
+	$form['ajax_makeup']=array(
+		'#prefix'=>'<div id="postform">',
+		'#suffix'=>'</div>',
+		//'#markup'=>'',
+	);
+	if(!empty($form_state['values']['posttype'])){
+		module_load_include('inc', 'node', 'node.pages');
+		$posttype=$form_state['values']['posttype'];
+
+		if($posttype=='Select'){
+			$content='';
+		}else{ 
+			$content = node_add($posttype);
+		}
+
+		$form['ajax_makeup']['#markup']=drupal_render($content);
+	}
+	return $form;
+}
+
+
+function postform_change($form, &$form_state){
+	return $form['ajax_makeup'];
+	
+}
+

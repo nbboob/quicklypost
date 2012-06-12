@@ -1,0 +1,11 @@
+.block-quicklypost{
+	 background: none no-repeat scroll left top #F3F3F3;
+    border: 1px solid #DCDCDC;
+    display: block;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    width: 100%;
+}
+.block-quicklypost label {
+    display: inline;
+}

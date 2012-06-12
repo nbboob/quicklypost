@@ -1,0 +1,5 @@
+; $Id$
+name = Quickly Post Block
+description = Make a quickly post form in the frontpage.
+package = Block
+core = 7.x
